@@ -1,0 +1,11 @@
+# Firebase cache
+.firebase/
+
+# Firebase debug log
+firebase-debug.log
+
+# Node modules
+node_modules/
+
+# System files
+.DS_Store

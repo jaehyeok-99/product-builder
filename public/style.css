@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+    background: #000;
+    color: #fff;
+    font-family: 'Press Start 2P', monospace;
+    /* Retro generic font */
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    /* Prevent scrolling */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#game-container {
+    position: relative;
+    width: 800px;
+    /* Doom native resolution-ish scaling */
+    max-width: 100%;
+    aspect-ratio: 4/3;
+    border: 4px solid #444;
+    box-shadow: 0 0 20px rgba(172, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+canvas {
+    background: #333;
+    width: 100%;
+    height: 85%;
+    /* Leave room for HUD */
+    image-rendering: pixelated;
+    /* Crisp pixels */
+}
+
+#hud {
+    height: 15%;
+    background: #1a1a1a url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIklEQVQIW2NkQAKrVq36zwjjgzjwqgAAOU1+AAIJAEsRAAA2BAAYSswA/gAAAABJRU5ErkJggg==');
+    /* Simple pattern */
+    border-top: 4px solid #555;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 10px;
+    color: #a00000;
+    text-shadow: 2px 2px #000;
+}
+
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 20%;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #b3b3b3;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    color: #ff0000;
+    /* Doom Red */
+    font-weight: bold;
+}
+
+#doom-face {
+    width: 60px;
+    height: 70px;
+    background: #555;
+    /* Placeholder for face */
+    border: 2px solid #000;
+}
+
+#message-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    text-align: center;
+}
+
+#message-overlay h1 {
+    color: #ff0000;
+    font-size: 3rem;
+    text-shadow: 4px 4px #000;
+    margin-bottom: 20px;
+}
+
+.btn {
+    background: #a00000;
+    border: 4px solid #fff;
+    color: #fff;
+    padding: 15px 30px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1rem;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.btn:hover {
+    background: #ff0000;
+}
+
+/* scanlines effect */
+#scanlines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.2));
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 5;
+}
