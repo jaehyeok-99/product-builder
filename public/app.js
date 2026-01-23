@@ -31,7 +31,7 @@ const map = [
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 4, 0, 0, 0, 0, 5, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 4, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 4, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -43,6 +43,35 @@ const map = [
 let posX = 22, posY = 12; // Start inside
 let dirX = -1, dirY = 0; // Initial direction vector
 let planeX = 0, planeY = 0.66; // The 2d raycaster version of camera plane
+
+// Game variables
+let score = 0;
+const numSprites = 19;
+const sprites = [
+    //x, y, texture
+    { x: 20.5, y: 11.5, texture: 10 },
+    { x: 18.5, y: 4.5, texture: 10 },
+    { x: 10.0, y: 4.5, texture: 10 },
+    { x: 10.0, y: 12.5, texture: 10 },
+    { x: 3.5, y: 6.5, texture: 10 },
+    { x: 3.5, y: 20.5, texture: 10 },
+    { x: 3.5, y: 14.5, texture: 10 },
+    { x: 14.5, y: 20.5, texture: 10 },
+
+    { x: 18.5, y: 10.5, texture: 11 },
+    { x: 18.5, y: 11.5, texture: 11 },
+    { x: 18.5, y: 12.5, texture: 11 },
+
+    { x: 21.5, y: 1.5, texture: 12 },
+    { x: 15.5, y: 1.5, texture: 12 },
+    { x: 16.0, y: 1.8, texture: 12 },
+    { x: 16.2, y: 1.2, texture: 12 },
+    { x: 3.5, y: 2.5, texture: 12 },
+    { x: 9.5, y: 15.5, texture: 12 },
+    { x: 10.0, y: 15.1, texture: 12 },
+    { x: 10.5, y: 15.8, texture: 12 },
+];
+const zBuffer = new Array(canvas.width);
 
 // Movement Keys
 const keys = {
@@ -99,6 +128,27 @@ function shoot() {
     weaponFrame = 1;
     setTimeout(() => weaponFrame = 0, 100);
     setTimeout(() => isShooting = false, 250);
+
+    // Check for sprite hits
+    for (let i = 0; i < numSprites; i++) {
+        const sprite = sprites[i];
+        if (sprite.texture !== 13) { // Not already dead
+            const vecX = sprite.x - posX;
+            const vecY = sprite.y - posY;
+            const dist = Math.sqrt(vecX * vecX + vecY * vecY);
+            
+            const eyeX = dirX;
+            const eyeY = dirY;
+
+            const dot = (eyeX * vecX / dist) + (eyeY * vecY / dist);
+
+            if (dot > 0.98) { // ~12 degree cone
+                sprite.texture = 13; // Dead sprite
+                score += 100;
+                document.getElementById('score-val').innerText = score;
+            }
+        }
+    }
 }
 
 // Update Logic
@@ -220,6 +270,56 @@ function draw() {
 
         ctx.fillStyle = color;
         ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
+
+        zBuffer[x] = perpWallDist; // perpendicular distance
+    }
+
+    // Sprite casting
+    // Sort sprites from far to close
+    for (let i = 0; i < numSprites; i++) {
+        sprites[i].distance = ((posX - sprites[i].x) * (posX - sprites[i].x) + (posY - sprites[i].y) * (posY - sprites[i].y));
+    }
+    sprites.sort((a, b) => b.distance - a.distance);
+
+    for (let i = 0; i < numSprites; i++) {
+        const spriteX = sprites[i].x - posX;
+        const spriteY = sprites[i].y - posY;
+
+        const invDet = 1.0 / (planeX * dirY - dirX * planeY);
+
+        const transformX = invDet * (dirY * spriteX - dirX * spriteY);
+        const transformY = invDet * (-planeY * spriteX + planeX * spriteY);
+
+        if (transformY > 0) {
+            const spriteScreenX = Math.floor((canvas.width / 2) * (1 + transformX / transformY));
+            const spriteHeight = Math.abs(Math.floor(canvas.height / (transformY)));
+            let drawStartY = -spriteHeight / 2 + canvas.height / 2;
+            if (drawStartY < 0) drawStartY = 0;
+            let drawEndY = spriteHeight / 2 + canvas.height / 2;
+            if (drawEndY >= canvas.height) drawEndY = canvas.height - 1;
+
+            const spriteWidth = Math.abs(Math.floor(canvas.height / (transformY)));
+            let drawStartX = Math.floor(-spriteWidth / 2 + spriteScreenX);
+            if (drawStartX < 0) drawStartX = 0;
+            let drawEndX = spriteWidth / 2 + spriteScreenX;
+            if (drawEndX >= canvas.width) drawEndX = canvas.width - 1;
+
+            for (let stripe = drawStartX; stripe < drawEndX; stripe++) {
+                if (transformY > 0 && stripe > 0 && stripe < canvas.width && transformY < zBuffer[stripe]) {
+                    // Sprite color based on texture
+                    let spriteColor;
+                    switch (sprites[i].texture) {
+                        case 10: spriteColor = '#FF0000'; break; // Imp
+                        case 11: spriteColor = '#00FF00'; break; // Barrel
+                        case 12: spriteColor = '#0000FF'; break; // Pillar
+                        case 13: spriteColor = '#404040'; break; // Dead Imp
+                        default: spriteColor = '#FF00FF'; break;
+                    }
+                    ctx.fillStyle = spriteColor;
+                    ctx.fillRect(stripe, drawStartY, 1, drawEndY - drawStartY);
+                }
+            }
+        }
     }
 
     // Draw Weapon (Primitive Gun)
