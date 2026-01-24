@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const calcBtn = document.getElementById('calc-btn');
+    const resetBtn = document.getElementById('reset-btn'); // New
     const resultDisplay = document.getElementById('result-display');
     const resultLabel = document.getElementById('result-label');
     const resultValue = document.getElementById('result-value');
@@ -68,8 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
             state.distance = parseFloat(e.target.value) || 0;
         });
 
-        // Button Click
+        // Button Clicks
         calcBtn.addEventListener('click', calculate);
+        resetBtn.addEventListener('click', resetAll); // New
 
         // Split Toggle
         splitToggles.forEach(toggle => {
@@ -104,20 +106,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultLabel.innerText = "예상 소요 시간 (Estimated Time)";
                 resultUnit.innerText = "";
                 break;
-            case 'distance': // Calculate Distance based on Pace & Time (Less common but useful)
-                groupDistance.classList.add('hidden');
-                groupTime.classList.remove('hidden');
-                groupPace.classList.remove('hidden');
-
-                resultLabel.innerText = "가능 거리 (Estimated Distance)";
-                resultUnit.innerText = "km";
-                break;
         }
     }
 
     function resetResults() {
         resultValue.innerText = "--:--";
         splitsCard.classList.remove('visible');
+    }
+
+    function resetAll() {
+        // Reset Inputs to defaults
+        distanceSelect.value = "5";
+        state.distance = 5;
+        customDistanceWrapper.classList.add('hidden');
+        distanceCustomInput.value = "";
+
+        inputs.h.value = "";
+        inputs.m.value = "";
+        inputs.s.value = "";
+        inputs.paceM.value = "";
+        inputs.paceS.value = "";
+
+        // Reset State
+        resetResults();
     }
 
     // --- Logic : Calculation ---
@@ -170,28 +181,12 @@ document.addEventListener('DOMContentLoaded', () => {
             state.calculatedPace = paceSecondsPerKm;
             state.calculatedDist = dist;
             state.calculatedTime = resultTimeSec;
-
-        } else if (mode === 'distance') {
-            if (paceSecondsPerKm === 0 || totalTimeSeconds === 0) {
-                alert("시간과 페이스를 입력해주세요.");
-                return;
-            }
-            // Distance = Time / Pace
-            const resultDist = totalTimeSeconds / paceSecondsPerKm;
-            resultValue.innerText = resultDist.toFixed(2);
-            resultUnit.innerText = "km";
-
-            state.calculatedPace = paceSecondsPerKm;
-            state.calculatedDist = resultDist;
-            state.calculatedTime = totalTimeSeconds;
         }
 
-        // Generate Splits if applicable
-        if (mode !== 'distance' || (mode === 'distance' && state.calculatedDist > 0)) {
-            splitsCard.classList.add('visible');
-            const activeGap = document.querySelector('.split-toggle.active').dataset.gap;
-            generateSplits(parseInt(activeGap));
-        }
+        // Generate Splits
+        splitsCard.classList.add('visible');
+        const activeGap = document.querySelector('.split-toggle.active').dataset.gap;
+        generateSplits(parseInt(activeGap));
     }
 
     // --- Logic : Helpers ---

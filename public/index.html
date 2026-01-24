@@ -29,7 +29,6 @@
             <div class="mode-tabs">
                 <button class="tab-btn active" data-mode="pace" id="tab-pace">페이스 계산</button>
                 <button class="tab-btn" data-mode="time" id="tab-time">예상 기록</button>
-                <button class="tab-btn" data-mode="distance" id="tab-distance">가능 거리</button>
             </div>
 
             <div class="input-section">
@@ -93,7 +92,10 @@
                 <div class="result-unit" id="result-unit">/km</div>
             </div>
 
-            <button class="action-btn" id="calc-btn">계산하기</button>
+            <div class="action-buttons">
+                <button class="action-btn secondary" id="reset-btn">초기화</button>
+                <button class="action-btn primary" id="calc-btn">계산하기</button>
+            </div>
         </div>
 
         <div class="splits-card glass-panel" id="splits-card">
