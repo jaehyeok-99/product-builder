@@ -1,364 +1,267 @@
+document.addEventListener('DOMContentLoaded', () => {
+    // --- State Management ---
+    const state = {
+        mode: 'pace', // 'pace', 'time', 'distance'
+        distance: 5, // km
+        time: { h: 0, m: 0, s: 0 },
+        pace: { m: 0, s: 0 }
+    };
 
-// Doom-style Raycaster Engine
+    // --- DOM Elements ---
+    const tabs = document.querySelectorAll('.tab-btn');
+    const groupDistance = document.getElementById('group-distance');
+    const groupTime = document.getElementById('group-time');
+    const groupPace = document.getElementById('group-pace');
 
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const overlay = document.getElementById('message-overlay');
+    const distanceSelect = document.getElementById('distance-select');
+    const customDistanceWrapper = document.getElementById('custom-distance-wrapper');
+    const distanceCustomInput = document.getElementById('distance-custom');
 
-// Game State
-let isRunning = false;
-let lastTime = 0;
+    const inputs = {
+        h: document.getElementById('time-hour'),
+        m: document.getElementById('time-min'),
+        s: document.getElementById('time-sec'),
+        paceM: document.getElementById('pace-min'),
+        paceS: document.getElementById('pace-sec')
+    };
 
-// World Map (1: wall, 0: empty)
-const mapWidth = 24;
-const mapHeight = 24;
-const map = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 4, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 4, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-];
+    const calcBtn = document.getElementById('calc-btn');
+    const resultDisplay = document.getElementById('result-display');
+    const resultLabel = document.getElementById('result-label');
+    const resultValue = document.getElementById('result-value');
+    const resultUnit = document.getElementById('result-unit');
+    const splitsCard = document.getElementById('splits-card');
+    const splitsTableBody = document.querySelector('#splits-table tbody');
+    const splitToggles = document.querySelectorAll('.split-toggle');
 
-// Player State
-let posX = 22, posY = 12; // Start inside
-let dirX = -1, dirY = 0; // Initial direction vector
-let planeX = 0, planeY = 0.66; // The 2d raycaster version of camera plane
-
-// Game variables
-let score = 0;
-const numSprites = 19;
-const sprites = [
-    //x, y, texture
-    { x: 20.5, y: 11.5, texture: 10 },
-    { x: 18.5, y: 4.5, texture: 10 },
-    { x: 10.0, y: 4.5, texture: 10 },
-    { x: 10.0, y: 12.5, texture: 10 },
-    { x: 3.5, y: 6.5, texture: 10 },
-    { x: 3.5, y: 20.5, texture: 10 },
-    { x: 3.5, y: 14.5, texture: 10 },
-    { x: 14.5, y: 20.5, texture: 10 },
-
-    { x: 18.5, y: 10.5, texture: 11 },
-    { x: 18.5, y: 11.5, texture: 11 },
-    { x: 18.5, y: 12.5, texture: 11 },
-
-    { x: 21.5, y: 1.5, texture: 12 },
-    { x: 15.5, y: 1.5, texture: 12 },
-    { x: 16.0, y: 1.8, texture: 12 },
-    { x: 16.2, y: 1.2, texture: 12 },
-    { x: 3.5, y: 2.5, texture: 12 },
-    { x: 9.5, y: 15.5, texture: 12 },
-    { x: 10.0, y: 15.1, texture: 12 },
-    { x: 10.5, y: 15.8, texture: 12 },
-];
-const zBuffer = new Array(canvas.width);
-
-// Movement Keys
-const keys = {
-    forward: false,
-    backward: false,
-    left: false,
-    right: false,
-    shoot: false
-};
-
-// Weapon
-let weaponFrame = 0;
-let isShooting = false;
-let ammo = 50;
-
-function startGame() {
-    overlay.style.display = 'none';
-    isRunning = true;
-    requestAnimationFrame(gameLoop);
-}
-
-// Input Handling
-document.addEventListener('keydown', (e) => {
-    switch (e.key) {
-        case 'ArrowUp': keys.forward = true; break;
-        case 'ArrowDown': keys.backward = true; break;
-        case 'ArrowLeft': keys.left = true; break;
-        case 'ArrowRight': keys.right = true; break;
-        case ' ':
-            if (!keys.shoot && ammo > 0) {
-                shoot();
-            }
-            keys.shoot = true;
-            break;
+    // --- Logic : Initialization ---
+    function init() {
+        setupEventListeners();
+        updateUIState();
     }
-});
 
-document.addEventListener('keyup', (e) => {
-    switch (e.key) {
-        case 'ArrowUp': keys.forward = false; break;
-        case 'ArrowDown': keys.backward = false; break;
-        case 'ArrowLeft': keys.left = false; break;
-        case 'ArrowRight': keys.right = false; break;
-        case ' ': keys.shoot = false; break;
-    }
-});
+    function setupEventListeners() {
+        // Tab Switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                tabs.forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+                state.mode = e.target.dataset.mode;
+                updateUIState();
+                resetResults();
+            });
+        });
 
-function shoot() {
-    if (isShooting) return;
-    isShooting = true;
-    ammo--;
-    document.getElementById('ammo-val').innerText = ammo;
-    // Shooting animation effect
-    weaponFrame = 1;
-    setTimeout(() => weaponFrame = 0, 100);
-    setTimeout(() => isShooting = false, 250);
-
-    // Check for sprite hits
-    for (let i = 0; i < numSprites; i++) {
-        const sprite = sprites[i];
-        if (sprite.texture !== 13) { // Not already dead
-            const vecX = sprite.x - posX;
-            const vecY = sprite.y - posY;
-            const dist = Math.sqrt(vecX * vecX + vecY * vecY);
-            
-            const eyeX = dirX;
-            const eyeY = dirY;
-
-            const dot = (eyeX * vecX / dist) + (eyeY * vecY / dist);
-
-            if (dot > 0.98) { // ~12 degree cone
-                sprite.texture = 13; // Dead sprite
-                score += 100;
-                document.getElementById('score-val').innerText = score;
-            }
-        }
-    }
-}
-
-// Update Logic
-function update(delta) {
-    const moveSpeed = 5.0 * delta; // squares/second
-    const rotSpeed = 3.0 * delta; // radians/second
-
-    if (keys.forward) {
-        if (map[Math.floor(posX + dirX * moveSpeed)][Math.floor(posY)] == 0) posX += dirX * moveSpeed;
-        if (map[Math.floor(posX)][Math.floor(posY + dirY * moveSpeed)] == 0) posY += dirY * moveSpeed;
-    }
-    if (keys.backward) {
-        if (map[Math.floor(posX - dirX * moveSpeed)][Math.floor(posY)] == 0) posX -= dirX * moveSpeed;
-        if (map[Math.floor(posX)][Math.floor(posY - dirY * moveSpeed)] == 0) posY -= dirY * moveSpeed;
-    }
-    if (keys.right) {
-        // Both camera direction and camera plane must be rotated
-        const oldDirX = dirX;
-        dirX = dirX * Math.cos(-rotSpeed) - dirY * Math.sin(-rotSpeed);
-        dirY = oldDirX * Math.sin(-rotSpeed) + dirY * Math.cos(-rotSpeed);
-        const oldPlaneX = planeX;
-        planeX = planeX * Math.cos(-rotSpeed) - planeY * Math.sin(-rotSpeed);
-        planeY = oldPlaneX * Math.sin(-rotSpeed) + planeY * Math.cos(-rotSpeed);
-    }
-    if (keys.left) {
-        const oldDirX = dirX;
-        dirX = dirX * Math.cos(rotSpeed) - dirY * Math.sin(rotSpeed);
-        dirY = oldDirX * Math.sin(rotSpeed) + dirY * Math.cos(rotSpeed);
-        const oldPlaneX = planeX;
-        planeX = planeX * Math.cos(rotSpeed) - planeY * Math.sin(rotSpeed);
-        planeY = oldPlaneX * Math.sin(rotSpeed) + planeY * Math.cos(rotSpeed);
-    }
-}
-
-// Rendering Logic
-function draw() {
-    // Clear screen
-    // Floor casting (simple gradient)
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, '#333'); // Ceiling
-    gradient.addColorStop(0.5, '#000'); // Horizon
-    gradient.addColorStop(1, '#554433'); // Floor
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Raycasting
-    for (let x = 0; x < canvas.width; x++) {
-        const cameraX = 2 * x / canvas.width - 1;
-        const rayDirX = dirX + planeX * cameraX;
-        const rayDirY = dirY + planeY * cameraX;
-
-        let mapX = Math.floor(posX);
-        let mapY = Math.floor(posY);
-
-        let sideDistX, sideDistY;
-
-        const deltaDistX = Math.abs(1 / rayDirX);
-        const deltaDistY = Math.abs(1 / rayDirY);
-        let perpWallDist;
-
-        let stepX, stepY;
-
-        let hit = 0;
-        let side;
-
-        if (rayDirX < 0) {
-            stepX = -1;
-            sideDistX = (posX - mapX) * deltaDistX;
-        } else {
-            stepX = 1;
-            sideDistX = (mapX + 1.0 - posX) * deltaDistX;
-        }
-        if (rayDirY < 0) {
-            stepY = -1;
-            sideDistY = (posY - mapY) * deltaDistY;
-        } else {
-            stepY = 1;
-            sideDistY = (mapY + 1.0 - posY) * deltaDistY;
-        }
-
-        while (hit == 0) {
-            if (sideDistX < sideDistY) {
-                sideDistX += deltaDistX;
-                mapX += stepX;
-                side = 0;
+        // Distance Select
+        distanceSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'custom') {
+                customDistanceWrapper.classList.remove('hidden');
+                state.distance = parseFloat(distanceCustomInput.value) || 0;
             } else {
-                sideDistY += deltaDistY;
-                mapY += stepY;
-                side = 1;
+                customDistanceWrapper.classList.add('hidden');
+                state.distance = parseFloat(e.target.value);
             }
-            if (map[mapX][mapY] > 0) hit = 1;
-        }
+        });
 
-        if (side == 0) perpWallDist = (mapX - posX + (1 - stepX) / 2) / rayDirX;
-        else perpWallDist = (mapY - posY + (1 - stepY) / 2) / rayDirY;
+        // Custom Distance Input
+        distanceCustomInput.addEventListener('input', (e) => {
+            state.distance = parseFloat(e.target.value) || 0;
+        });
 
-        const lineHeight = Math.floor(canvas.height / perpWallDist);
+        // Button Click
+        calcBtn.addEventListener('click', calculate);
 
-        let drawStart = -lineHeight / 2 + canvas.height / 2;
-        if (drawStart < 0) drawStart = 0;
-        let drawEnd = lineHeight / 2 + canvas.height / 2;
-        if (drawEnd >= canvas.height) drawEnd = canvas.height - 1;
-
-        // Wall colors based on map value
-        let color;
-        switch (map[mapX][mapY]) {
-            case 1: color = '#AA0000'; break; // Red
-            case 2: color = '#00AA00'; break; // Green
-            case 3: color = '#0000AA'; break; // Blue
-            case 4: color = '#AAAAAA'; break; // White
-            default: color = '#AA8800'; break; // Yellow
-        }
-
-        // Give x and y sides different brightness
-        if (side == 1) {
-            // Darken color
-            color = color.replace(/AA/g, '77');
-        }
-
-        ctx.fillStyle = color;
-        ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
-
-        zBuffer[x] = perpWallDist; // perpendicular distance
-    }
-
-    // Sprite casting
-    // Sort sprites from far to close
-    for (let i = 0; i < numSprites; i++) {
-        sprites[i].distance = ((posX - sprites[i].x) * (posX - sprites[i].x) + (posY - sprites[i].y) * (posY - sprites[i].y));
-    }
-    sprites.sort((a, b) => b.distance - a.distance);
-
-    for (let i = 0; i < numSprites; i++) {
-        const spriteX = sprites[i].x - posX;
-        const spriteY = sprites[i].y - posY;
-
-        const invDet = 1.0 / (planeX * dirY - dirX * planeY);
-
-        const transformX = invDet * (dirY * spriteX - dirX * spriteY);
-        const transformY = invDet * (-planeY * spriteX + planeX * spriteY);
-
-        if (transformY > 0) {
-            const spriteScreenX = Math.floor((canvas.width / 2) * (1 + transformX / transformY));
-            const spriteHeight = Math.abs(Math.floor(canvas.height / (transformY)));
-            let drawStartY = -spriteHeight / 2 + canvas.height / 2;
-            if (drawStartY < 0) drawStartY = 0;
-            let drawEndY = spriteHeight / 2 + canvas.height / 2;
-            if (drawEndY >= canvas.height) drawEndY = canvas.height - 1;
-
-            const spriteWidth = Math.abs(Math.floor(canvas.height / (transformY)));
-            let drawStartX = Math.floor(-spriteWidth / 2 + spriteScreenX);
-            if (drawStartX < 0) drawStartX = 0;
-            let drawEndX = spriteWidth / 2 + spriteScreenX;
-            if (drawEndX >= canvas.width) drawEndX = canvas.width - 1;
-
-            for (let stripe = drawStartX; stripe < drawEndX; stripe++) {
-                if (transformY > 0 && stripe > 0 && stripe < canvas.width && transformY < zBuffer[stripe]) {
-                    // Sprite color based on texture
-                    let spriteColor;
-                    switch (sprites[i].texture) {
-                        case 10: spriteColor = '#FF0000'; break; // Imp
-                        case 11: spriteColor = '#00FF00'; break; // Barrel
-                        case 12: spriteColor = '#0000FF'; break; // Pillar
-                        case 13: spriteColor = '#404040'; break; // Dead Imp
-                        default: spriteColor = '#FF00FF'; break;
-                    }
-                    ctx.fillStyle = spriteColor;
-                    ctx.fillRect(stripe, drawStartY, 1, drawEndY - drawStartY);
+        // Split Toggle
+        splitToggles.forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                splitToggles.forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+                // Re-render splits if results exist
+                if (splitsCard.classList.contains('visible')) {
+                    generateSplits(parseInt(e.target.dataset.gap));
                 }
-            }
+            });
+        });
+    }
+
+    // --- Logic : UI Updates ---
+    function updateUIState() {
+        // Show/Hide input groups based on mode
+        switch (state.mode) {
+            case 'pace': // Calculate Pace based on Time & Distance
+                groupDistance.classList.remove('hidden');
+                groupTime.classList.remove('hidden');
+                groupPace.classList.add('hidden');
+
+                resultLabel.innerText = "평균 페이스 (Average Pace)";
+                resultUnit.innerText = "/km";
+                break;
+            case 'time': // Calculate Time based on Pace & Distance
+                groupDistance.classList.remove('hidden');
+                groupTime.classList.add('hidden');
+                groupPace.classList.remove('hidden');
+
+                resultLabel.innerText = "예상 소요 시간 (Estimated Time)";
+                resultUnit.innerText = "";
+                break;
+            case 'distance': // Calculate Distance based on Pace & Time (Less common but useful)
+                groupDistance.classList.add('hidden');
+                groupTime.classList.remove('hidden');
+                groupPace.classList.remove('hidden');
+
+                resultLabel.innerText = "가능 거리 (Estimated Distance)";
+                resultUnit.innerText = "km";
+                break;
         }
     }
 
-    // Draw Weapon (Primitive Gun)
-    const gunWidth = 200;
-    const gunHeight = 200;
-    const gunX = canvas.width / 2 - gunWidth / 2;
-    const gunY = canvas.height - gunHeight + (weaponFrame * 20); // Recoil
-
-    // Gun shape (simple polygons)
-    ctx.fillStyle = '#444';
-    ctx.beginPath();
-    ctx.moveTo(gunX + 60, gunY + 80);
-    ctx.lineTo(gunX + 140, gunY + 80);
-    ctx.lineTo(gunX + 160, canvas.height);
-    ctx.lineTo(gunX + 40, canvas.height);
-    ctx.fill();
-
-    // Muzzle flash
-    if (isShooting && Math.random() > 0.5) {
-        ctx.fillStyle = '#FFDD55';
-        ctx.beginPath();
-        ctx.arc(canvas.width / 2, canvas.height / 2 + 50, 40, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#FF8800';
-        ctx.beginPath();
-        ctx.arc(canvas.width / 2, canvas.height / 2 + 50, 20, 0, Math.PI * 2);
-        ctx.fill();
+    function resetResults() {
+        resultValue.innerText = "--:--";
+        splitsCard.classList.remove('visible');
     }
-}
 
-function gameLoop(timestamp) {
-    if (!isRunning) return;
+    // --- Logic : Calculation ---
+    function calculate() {
+        const mode = state.mode;
+        let dist = state.distance;
 
-    if (lastTime === 0) lastTime = timestamp;
-    const delta = (timestamp - lastTime) / 1000;
-    lastTime = timestamp;
+        // Handle custom distance check
+        if (distanceSelect.value === 'custom') {
+            dist = parseFloat(distanceCustomInput.value);
+            if (!dist || dist <= 0) {
+                alert("거리를 올바르게 입력해주세요.");
+                return;
+            }
+        }
 
-    update(delta);
-    draw();
+        // Get Time values
+        const h = parseInt(inputs.h.value) || 0;
+        const m = parseInt(inputs.m.value) || 0;
+        const s = parseInt(inputs.s.value) || 0;
+        const totalTimeSeconds = (h * 3600) + (m * 60) + s;
 
-    requestAnimationFrame(gameLoop);
-}
+        // Get Pace values
+        const pM = parseInt(inputs.paceM.value) || 0;
+        const pS = parseInt(inputs.paceS.value) || 0;
+        const paceSecondsPerKm = (pM * 60) + pS;
+
+        if (mode === 'pace') {
+            if (totalTimeSeconds === 0) {
+                alert("시간을 입력해주세요.");
+                return;
+            }
+            // Pace = Time / Distance
+            const resultPaceSec = totalTimeSeconds / dist;
+            displayPace(resultPaceSec);
+            // Prepare data for splits (we know Pace and Distance)
+            state.calculatedPace = resultPaceSec;
+            state.calculatedDist = dist;
+            state.calculatedTime = totalTimeSeconds;
+
+        } else if (mode === 'time') {
+            if (paceSecondsPerKm === 0) {
+                alert("페이스를 입력해주세요.");
+                return;
+            }
+            // Time = Pace * Distance
+            const resultTimeSec = paceSecondsPerKm * dist;
+            displayTime(resultTimeSec);
+
+            state.calculatedPace = paceSecondsPerKm;
+            state.calculatedDist = dist;
+            state.calculatedTime = resultTimeSec;
+
+        } else if (mode === 'distance') {
+            if (paceSecondsPerKm === 0 || totalTimeSeconds === 0) {
+                alert("시간과 페이스를 입력해주세요.");
+                return;
+            }
+            // Distance = Time / Pace
+            const resultDist = totalTimeSeconds / paceSecondsPerKm;
+            resultValue.innerText = resultDist.toFixed(2);
+            resultUnit.innerText = "km";
+
+            state.calculatedPace = paceSecondsPerKm;
+            state.calculatedDist = resultDist;
+            state.calculatedTime = totalTimeSeconds;
+        }
+
+        // Generate Splits if applicable
+        if (mode !== 'distance' || (mode === 'distance' && state.calculatedDist > 0)) {
+            splitsCard.classList.add('visible');
+            const activeGap = document.querySelector('.split-toggle.active').dataset.gap;
+            generateSplits(parseInt(activeGap));
+        }
+    }
+
+    // --- Logic : Helpers ---
+    function formatTime(totalSeconds) {
+        const h = Math.floor(totalSeconds / 3600);
+        const m = Math.floor((totalSeconds % 3600) / 60);
+        const s = Math.floor(totalSeconds % 60);
+
+        if (h > 0) {
+            return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function displayPace(secondsPerKm) {
+        const m = Math.floor(secondsPerKm / 60);
+        const s = Math.floor(secondsPerKm % 60);
+        resultValue.innerText = `${m}'${s.toString().padStart(2, '0')}"`;
+        resultUnit.innerText = "/km";
+    }
+
+    function displayTime(totalSeconds) {
+        resultValue.innerText = formatTime(totalSeconds);
+        resultUnit.innerText = "Total Time";
+    }
+
+    function generateSplits(gapKm) {
+        splitsTableBody.innerHTML = '';
+        const totalDist = state.calculatedDist;
+        const paceSec = state.calculatedPace;
+
+        let currentDist = 0;
+
+        // Loop until total distance
+        while (currentDist < totalDist) {
+            let nextDist = currentDist + gapKm;
+            if (nextDist > totalDist) nextDist = totalDist;
+
+            // Time at this split point
+            const timeAtSplit = nextDist * paceSec;
+
+            // For the row
+            const tr = document.createElement('tr');
+
+            // Col 1: Distance
+            const tdDist = document.createElement('td');
+            tdDist.innerText = nextDist === totalDist ? `${nextDist.toFixed(2)} km (Finish)` : `${nextDist} km`;
+
+            // Col 2: Cumulative Time
+            const tdTime = document.createElement('td');
+            tdTime.innerText = formatTime(timeAtSplit);
+
+            // Col 3: Split Pace (Assuming constant pace for now, but usually it's avg)
+            // Real apps might allow segment pace variation, but for a basic calculator constant is fine.
+            const tdPace = document.createElement('td');
+            const m = Math.floor(paceSec / 60);
+            const s = Math.floor(paceSec % 60);
+            tdPace.innerText = `${m}'${s.toString().padStart(2, '0')}"`;
+
+            tr.appendChild(tdDist);
+            tr.appendChild(tdTime);
+            tr.appendChild(tdPace);
+
+            splitsTableBody.appendChild(tr);
+
+            currentDist = nextDist;
+            if (nextDist === totalDist) break;
+        }
+    }
+
+    // Run Init
+    init();
+});

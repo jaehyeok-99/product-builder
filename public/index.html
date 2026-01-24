@@ -1,77 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로 러닝 페이스 계산기 | Pro Running Calculator</title>
+    <meta name="description" content="러너를 위한 최고의 페이스 계산기. 마라톤, 하프, 10k, 5k 목표 설정 및 구간별 기록 분석.">
     <link rel="stylesheet" href="style.css">
-
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/10.7.1/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/10.7.1/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/10.7.1/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/10.7.1/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/10.7.1/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/10.7.1/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/10.7.1/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/10.7.1/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/10.7.1/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Pretendard:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
     <script defer src="app.js"></script>
 </head>
 
 <body>
-    <div id="game-container">
-        <div id="scanlines"></div>
-        <canvas id="gameCanvas" width="640" height="400"></canvas>
+    <div class="background-mesh"></div>
 
-        <div id="message-overlay">
-            <h1>DOOM JS</h1>
-            <button class="btn" onclick="startGame()">ENTER HELL</button>
-            <p style="margin-top:20px; font-size: 0.7rem; color: #888;">Controls: Arrows to Move/Turn, Space to Shoot
-            </p>
-        </div>
+    <main class="container">
+        <header class="app-header">
+            <div class="logo">PROPACE</div>
+            <h1>러닝 페이스 계산기</h1>
+            <p>목표를 설정하고 한계를 뛰어넘으세요.</p>
+        </header>
 
-        <div id="hud">
-            <div class="stat-box">
-                <span class="stat-label">AMMO</span>
-                <span class="stat-value" id="ammo-val">50</span>
+        <div class="calculator-card glass-panel">
+            <div class="mode-tabs">
+                <button class="tab-btn active" data-mode="pace" id="tab-pace">페이스 계산</button>
+                <button class="tab-btn" data-mode="time" id="tab-time">예상 기록</button>
+                <button class="tab-btn" data-mode="distance" id="tab-distance">가능 거리</button>
             </div>
-            <div class="stat-box" style="width: 15%;">
-                <span class="stat-label">HEALTH</span>
-                <span class="stat-value" id="health-val">100%</span>
-            </div>
-            <div id="doom-face">
-                <!-- Face will be drawn by JS or placeholder -->
-                <div
-                    style="width: 100%; height: 100%; background: #885544; display: flex; justify-content: center; align-items: center;">
-                    <div style="width: 8px; height: 8px; background: black; margin: 2px;"></div>
-                    <div style="width: 8px; height: 8px; background: black; margin: 2px;"></div>
+
+            <div class="input-section">
+                <!-- Distance Input Group -->
+                <div class="input-group" id="group-distance">
+                    <label>거리 (Distance)</label>
+                    <div class="input-row">
+                        <select id="distance-select" class="premium-select">
+                            <option value="5">5km</option>
+                            <option value="10">10km</option>
+                            <option value="21.0975">하프 마라톤 (21.1k)</option>
+                            <option value="42.195">풀 마라톤 (42.2k)</option>
+                            <option value="custom">직접 입력</option>
+                        </select>
+                        <div class="custom-input-wrapper hidden" id="custom-distance-wrapper">
+                            <input type="number" id="distance-custom" placeholder="0" step="0.01">
+                            <span class="unit">km</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Time Input Group -->
+                <div class="input-group" id="group-time">
+                    <label>시간 (Time)</label>
+                    <div class="time-inputs">
+                        <div class="time-field">
+                            <input type="number" id="time-hour" placeholder="0" min="0">
+                            <span>hr</span>
+                        </div>
+                        <div class="time-field">
+                            <input type="number" id="time-min" placeholder="0" min="0" max="59">
+                            <span>min</span>
+                        </div>
+                        <div class="time-field">
+                            <input type="number" id="time-sec" placeholder="0" min="0" max="59">
+                            <span>sec</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pace Input Group -->
+                <div class="input-group hidden" id="group-pace">
+                    <label>페이스 (Pace)</label>
+                    <div class="time-inputs">
+                        <div class="time-field">
+                            <input type="number" id="pace-min" placeholder="0" min="0">
+                            <span>min</span>
+                        </div>
+                        <div class="time-field">
+                            <input type="number" id="pace-sec" placeholder="0" min="0" max="59">
+                            <span>sec</span>
+                        </div>
+                        <span class="per-unit">/km</span>
+                    </div>
                 </div>
             </div>
-            <div class="stat-box" style="width: 15%;">
-                <span class="stat-label">ARMOR</span>
-                <span class="stat-value" id="armor-val">0%</span>
+
+            <div class="result-display" id="result-display">
+                <div class="result-label" id="result-label">평균 페이스</div>
+                <div class="result-value" id="result-value">--:--</div>
+                <div class="result-unit" id="result-unit">/km</div>
             </div>
-            <div class="stat-box">
-                <span class="stat-label">SCORE</span>
-                <span class="stat-value" id="score-val">0</span>
+
+            <button class="action-btn" id="calc-btn">계산하기</button>
+        </div>
+
+        <div class="splits-card glass-panel" id="splits-card">
+            <div class="card-header">
+                <h2>구간 기록표 (Splits)</h2>
+                <div class="split-controls">
+                    <button class="split-toggle active" data-gap="1">1km</button>
+                    <button class="split-toggle" data-gap="5">5km</button>
+                </div>
             </div>
-            <div class="stat-box">
-                <span class="stat-label">WEAPON</span>
-                <span class="stat-value">PISTOL</span>
+            <div class="table-container">
+                <table id="splits-table">
+                    <thead>
+                        <tr>
+                            <th>거리</th>
+                            <th>누적 시간</th>
+                            <th>구간 페이스</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Generated by JS -->
+                    </tbody>
+                </table>
             </div>
         </div>
-    </div>
-    <script src="app.js"></script>
+    </main>
+
+    <footer class="app-footer">
+        © 2026 ProPace Calculator. Designed for Runners.
+    </footer>
 </body>
 
 </html>
