@@ -421,3 +421,112 @@ tr:last-child td {
         font-size: 2.8rem;
     }
 }
+
+/* Footer Link Button */
+.footer-link-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+
+.footer-link-btn:hover {
+    opacity: 1;
+    color: var(--primary);
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.hidden {
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-content {
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    background: rgba(20, 20, 30, 0.8);
+    /* Darker background for modal */
+    animation: slideUp 0.3s ease;
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.modal-close:hover {
+    color: #fff;
+}
+
+.modal-content h2 {
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+}
+
+.modal-desc {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.modal-content textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    padding: 1rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    outline: none;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.modal-content textarea:focus {
+    border-color: var(--primary);
+}
+
+.status-msg {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    text-align: center;
+    min-height: 1.2em;
+}
+
+.status-msg.success {
+    color: var(--primary);
+}
+
+.status-msg.error {
+    color: var(--accent);
+}

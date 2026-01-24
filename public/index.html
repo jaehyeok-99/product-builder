@@ -124,8 +124,33 @@
     </main>
 
     <footer class="app-footer">
-        © 2026 ProPace Calculator. Designed for Runners.
+        <p>© 2026 ProPace Calculator. Designed for Runners.</p>
+        <button id="feedback-open-btn" class="footer-link-btn">버그 제보 및 의견 보내기</button>
     </footer>
+
+    <!-- Feedback Modal -->
+    <div class="modal-overlay hidden" id="feedback-modal">
+        <div class="modal-content glass-panel">
+            <button class="modal-close" id="feedback-close-btn">&times;</button>
+            <h2>의견 보내기</h2>
+            <p class="modal-desc">버그 제보나 추가하고 싶은 기능이 있다면 알려주세요!</p>
+
+            <form id="feedback-form" action="https://formspree.io/f/mzdejrqv" method="POST">
+                <div class="input-group">
+                    <label for="fb-email">이메일 (답변을 원하시면 입력해주세요)</label>
+                    <input type="email" id="fb-email" name="email" placeholder="runner@example.com">
+                </div>
+                <div class="input-group">
+                    <label for="fb-message">내용</label>
+                    <textarea id="fb-message" name="message" rows="4" placeholder="자유롭게 의견을 적어주세요." required></textarea>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="action-btn primary">보내기</button>
+                </div>
+                <p id="feedback-status" class="status-msg"></p>
+            </form>
+        </div>
+    </div>
 </body>
 
 </html>

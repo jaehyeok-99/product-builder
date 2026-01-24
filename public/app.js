@@ -66,7 +66,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Custom Distance Input
         distanceCustomInput.addEventListener('input', (e) => {
+            // 숫자와 소수점만 허용
+            e.target.value = e.target.value.replace(/[^0-9.]/g, '');
             state.distance = parseFloat(e.target.value) || 0;
+        });
+
+        // 나머지 숫자 입력 필드 (정수만 허용)
+        Object.values(inputs).forEach(input => {
+            input.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            });
         });
 
         // Button Clicks
@@ -255,6 +264,76 @@ document.addEventListener('DOMContentLoaded', () => {
             currentDist = nextDist;
             if (nextDist === totalDist) break;
         }
+    }
+
+    // --- Logic : Feedback Modal ---
+    const feedbackModal = document.getElementById('feedback-modal');
+    const feedbackOpenBtn = document.getElementById('feedback-open-btn');
+    const feedbackCloseBtn = document.getElementById('feedback-close-btn');
+    const feedbackForm = document.getElementById('feedback-form');
+    const feedbackStatus = document.getElementById('feedback-status');
+
+    if (feedbackOpenBtn && feedbackModal) {
+        // Open
+        feedbackOpenBtn.addEventListener('click', () => {
+            feedbackModal.classList.remove('hidden');
+            feedbackStatus.innerText = "";
+            feedbackStatus.className = "status-msg";
+        });
+
+        // Close
+        feedbackCloseBtn.addEventListener('click', () => {
+            feedbackModal.classList.add('hidden');
+        });
+
+        // Close on outside click
+        feedbackModal.addEventListener('click', (e) => {
+            if (e.target === feedbackModal) {
+                feedbackModal.classList.add('hidden');
+            }
+        });
+
+        // Form Submit (AJAX)
+        feedbackForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = new FormData(form);
+
+            feedbackStatus.innerText = "전송 중...";
+            feedbackStatus.className = "status-msg";
+
+            try {
+                const response = await fetch(form.action, {
+                    method: form.method,
+                    body: data,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    feedbackStatus.innerText = "소중한 의견 감사합니다! 성공적으로 전송되었습니다.";
+                    feedbackStatus.className = "status-msg success";
+                    form.reset();
+                    // Close after 2 seconds
+                    setTimeout(() => {
+                        feedbackModal.classList.add('hidden');
+                        feedbackStatus.innerText = "";
+                    }, 2000);
+                } else {
+                    const errorData = await response.json();
+                    if (Object.hasOwn(errorData, 'errors')) {
+                        feedbackStatus.innerText = errorData["errors"].map(error => error["message"]).join(", ");
+                    } else {
+                        feedbackStatus.innerText = "전송에 실패했습니다. 잠시 후 다시 시도해주세요.";
+                    }
+                    feedbackStatus.className = "status-msg error";
+                }
+            } catch (error) {
+                feedbackStatus.innerText = "네트워크 오류가 발생했습니다.";
+                feedbackStatus.className = "status-msg error";
+            }
+        });
     }
 
     // Run Init
