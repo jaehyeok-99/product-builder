@@ -464,6 +464,97 @@ tr:last-child td {
     font-weight: 600;
 }
 
+/* Expanded Content Styles */
+.content-block {
+    margin-bottom: 2rem;
+}
+
+.divider {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 2.5rem 0;
+}
+
+.training-method {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--glass-border);
+    transition: transform 0.2s;
+}
+
+.training-method:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.training-method h4 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+/* FAQ Accordion */
+details {
+    background: rgba(0, 0, 0, 0.2);
+    margin-bottom: 0.8rem;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: border-color 0.3s;
+}
+
+details:hover {
+    border-color: var(--glass-border);
+}
+
+summary {
+    padding: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    list-style: none; /* Hide default triangle */
+    position: relative;
+    padding-right: 2.5rem;
+    color: var(--text-main);
+}
+
+summary::-webkit-details-marker {
+    display: none;
+}
+
+summary::after {
+    content: '+';
+    position: absolute;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary);
+    font-weight: bold;
+    font-size: 1.2rem;
+    transition: transform 0.2s, color 0.2s;
+}
+
+details[open] summary {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+details[open] summary::after {
+    transform: translateY(-50%) rotate(45deg);
+    color: var(--accent);
+}
+
+details p {
+    padding: 1rem;
+    padding-top: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+}
+
 /* Footer Link Button */
 .footer-link-btn,
 .footer-link {
