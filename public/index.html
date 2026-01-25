@@ -36,20 +36,53 @@
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "ProPace 러닝 페이스 계산기",
-      "url": "https://product-builder-887.pages.dev/",
-      "description": "ProPace 러닝 페이스 계산기로 마라톤, 5km, 10km, 하프 코스 목표 시간을 계산하세요.",
-      "applicationCategory": "HealthApplication",
-      "operatingSystem": "Any",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "KRW"
+    [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "ProPace 러닝 페이스 계산기",
+        "url": "https://product-builder-887.pages.dev/",
+        "description": "ProPace 러닝 페이스 계산기로 마라톤, 5km, 10km, 하프 코스 목표 시간을 계산하세요.",
+        "applicationCategory": "HealthApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "KRW"
+        },
+        "author": {
+            "@type": "Organization",
+            "name": "ProPace Team",
+            "url": "https://product-builder-887.pages.dev/"
+        }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [{
+          "@type": "Question",
+          "name": "초보자는 일주일에 몇 번 달리는 게 좋나요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "처음 시작한다면 주 3회(하루 달리고 하루 휴식)를 추천합니다. 휴식 또한 훈련의 일부이며, 근육과 관절이 회복할 시간을 주어야 부상을 방지할 수 있습니다."
+          }
+        }, {
+          "@type": "Question",
+          "name": "러닝화는 어떤 것을 신어야 하나요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "자신의 발 모양(평발, 요족 등)과 주법에 맞는 신발을 선택해야 합니다. 처음에는 쿠션이 충분하고 안정성이 좋은 '조깅화'나 '안정화' 카테고리의 제품을 추천합니다."
+          }
+        }, {
+          "@type": "Question",
+          "name": "페이스 계산기의 기록이 정확한가요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "이 계산기는 국제 육상 경기 연맹(IAAF)의 거리 측정 표준과 일반적인 페이스 산출 공식을 따르는 이론적인 수치입니다. 실제 레이스에서는 날씨와 컨디션을 고려해야 합니다."
+          }
+        }]
       }
-    }
+    ]
     </script>
 
     <link rel="stylesheet" href="style.css">
@@ -278,10 +311,15 @@
                 </details>
                 <details>
                     <summary>Q. 페이스 계산기의 기록이 정확한가요?</summary>
-                    <p>A. 이 계산기는 수학적 공식에 기반한 이론적인 수치입니다. 실제 레이스에서는 날씨, 코스 고저차, 컨디션 등 다양한 변수가 작용합니다. 계산된 페이스를 기준점으로 삼되,
-                        당일 상황에 맞춰 유연하게 조절하는 것이 중요합니다.</p>
+                    <p>A. 이 계산기는 <strong>국제 육상 경기 연맹(IAAF)</strong>의 거리 측정 표준과 일반적인 페이스 산출 공식을 따르는 이론적인 수치입니다. 실제 레이스에서는
+                        날씨, 코스 고저차, 컨디션 등 다양한 변수가 작용합니다. 계산된 페이스를 기준점으로 삼되, 당일 상황에 맞춰 유연하게 조절하는 것이 중요합니다.</p>
                 </details>
             </div>
+
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 3rem; text-align: center;">
+                ※ 본 서비스는 러너들의 편의를 위해 제공되며, 전문적인 의료/훈련 조언을 대체할 수 없습니다.<br>
+                Data source linked to IAAF standards appropriate for general running distances.
+            </p>
         </article>
     </main>
 
