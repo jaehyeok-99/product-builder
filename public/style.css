@@ -77,6 +77,7 @@ h1 {
     font-size: 2.2rem;
     font-weight: 700;
     background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 0.5rem;
@@ -85,6 +86,22 @@ h1 {
 .app-header p {
     color: var(--text-muted);
     font-size: 1rem;
+}
+
+/* Intro Text for AdSense */
+.intro-text {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.intro-text strong {
+    color: var(--primary);
 }
 
 /* Glassmorphism Panels */
@@ -97,6 +114,38 @@ h1 {
     padding: 2rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Main Navigation */
+.main-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+}
+
+.main-nav a {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.main-nav a:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.main-nav a.active {
+    color: var(--primary);
+    background: rgba(0, 242, 96, 0.1);
+    border-color: rgba(0, 242, 96, 0.2);
+    font-weight: 600;
 }
 
 /* Calculator Tabs */
@@ -514,7 +563,8 @@ summary {
     padding: 1rem;
     cursor: pointer;
     font-weight: 600;
-    list-style: none; /* Hide default triangle */
+    list-style: none;
+    /* Hide default triangle */
     position: relative;
     padding-right: 2.5rem;
     color: var(--text-main);

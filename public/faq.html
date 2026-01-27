@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자주 묻는 질문 (FAQ) | ProPace</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
+    <link rel="canonical" href="https://product-builder-887.pages.dev/faq.html">
+    <meta name="description" content="러닝 초보자를 위한 훈련 빈도, 러닝화 선택 가이드, 페이스 계산기 정확도 등 자주 묻는 질문에 대한 답변입니다.">
+    <meta name="theme-color" content="#0a0a0e">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://product-builder-887.pages.dev/faq.html">
+    <meta property="og:title" content="자주 묻는 질문 (FAQ) | ProPace">
+    <meta property="og:description" content="러닝화 선택부터 훈련 빈도까지, 러너들이 궁금해하는 질문들을 모았습니다.">
+    <meta property="og:image" content="https://product-builder-887.pages.dev/favicon.png">
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Pretendard:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1709887810365824"
+        crossorigin="anonymous"></script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HL3MYZF0PL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-HL3MYZF0PL');
+    </script>
+</head>
+
+<body>
+    <div class="background-mesh"></div>
+
+    <main class="container">
+        <header class="app-header">
+            <div class="logo">PROPACE</div>
+            <nav class="main-nav">
+                <a href="index.html">계산기</a>
+                <a href="guide.html">가이드</a>
+                <a href="faq.html" class="active">FAQ</a>
+            </nav>
+            <h1>자주 묻는 질문</h1>
+            <p>러닝에 대해 궁금한 점을 해결해 드립니다.</p>
+        </header>
+
+        <article class="info-section glass-panel">
+            <details open>
+                <summary>Q. 초보자는 일주일에 몇 번 달리는 게 좋나요?</summary>
+                <p>A. 처음 시작한다면 주 3회(하루 달리고 하루 휴식)를 추천합니다. 휴식 또한 훈련의 일부이며, 근육과 관절이 회복할 시간을 주어야 부상을 방지할 수 있습니다.</p>
+            </details>
+            <details>
+                <summary>Q. 러닝화는 어떤 것을 신어야 하나요?</summary>
+                <p>A. 자신의 발 모양(평발, 요족 등)과 주법에 맞는 신발을 선택해야 합니다. 처음에는 쿠션이 충분하고 안정성이 좋은 '조깅화'나 '안정화' 카테고리의 제품을 추천합니다.
+                    카본이 들어간 레이싱화는 근력이 부족한 초보자에게 오히려 부상을 유발할 수 있습니다.</p>
+            </details>
+            <details>
+                <summary>Q. 페이스 계산기의 기록이 정확한가요?</summary>
+                <p>A. 이 계산기는 <strong>국제 육상 경기 연맹(IAAF)</strong>의 거리 측정 표준과 일반적인 페이스 산출 공식을 따르는 이론적인 수치입니다. 실제 레이스에서는
+                    날씨, 코스 고저차, 컨디션 등 다양한 변수가 작용합니다. 계산된 페이스를 기준점으로 삼되, 당일 상황에 맞춰 유연하게 조절하는 것이 중요합니다.</p>
+            </details>
+            <details>
+                <summary>Q. 식사는 언제 하는 것이 좋은가요?</summary>
+                <p>A. 러닝 최소 2~3시간 전에 식사를 마치는 것이 좋습니다. 소화가 덜 된 상태에서 달리면 복통을 유발할 수 있습니다. 공복 러닝이 부담스럽다면 바나나 한 개 정도 가벼운 간식을
+                    30분 전에 섭취하세요.</p>
+            </details>
+            <details>
+                <summary>Q. 무릎이 아픈데 계속 달려도 되나요?</summary>
+                <p>A. 통증은 몸이 보내는 적신호입니다. 무릎 통증이 느껴지면 즉시 러닝을 중단하고 휴식을 취해야 합니다. 통증이 지속되면 전문가의 진료를 받아보시는 것을 권장합니다.</p>
+            </details>
+        </article>
+    </main>
+
+    <footer class="app-footer">
+        <p>© 2026 ProPace Calculator. Designed for Runners.</p>
+        <button id="feedback-open-btn" class="footer-link-btn" onclick="openFeedbackModal()">버그 제보 및 의견 보내기</button>
+        <a href="privacy.html" class="footer-link">개인정보처리방침</a>
+    </footer>
+
+    <!-- Feedback Modal Logic needed here too if we want it global, or just remove button from subpages if logic is only in app.js which might strict to index elements. 
+         Ideally, create a shared script or just simplified link for subpages. For now, I'll keep the button but might need a simple inline script or just link to index. 
+         Actually, let's just make the feedback button open a mailto link on subpages for simplicity or just link to index.
+    -->
+    <script>
+        function openFeedbackModal() {
+            // Since the complex modal logic is in app.js which is heavy for simple pages, 
+            // maybe just redirect or alert? 
+            // Or better, let's just hide the feedback button on subpages to keep it clean and avoid js errors if elements missing.
+            // But user might want to report errors on these pages.
+            // Let's use mailto for simplicity on subpages.
+            window.location.href = "mailto:wjklop4569@naver.com?subject=[ProPace] 의견 보내기";
+        }
+    </script>
+</body>
+
+</html>
