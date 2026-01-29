@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const groupDistance = document.getElementById('group-distance');
     const groupTime = document.getElementById('group-time');
     const groupPace = document.getElementById('group-pace');
+    const groupType = document.getElementById('group-type'); // New
 
     const distanceSelect = document.getElementById('distance-select');
     const customDistanceWrapper = document.getElementById('custom-distance-wrapper');
@@ -34,6 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const splitsCard = document.getElementById('splits-card');
     const splitsTableBody = document.querySelector('#splits-table tbody');
     const splitToggles = document.querySelectorAll('.split-toggle');
+
+    const predictionCard = document.getElementById('prediction-card');
+    const predictionGrid = document.getElementById('prediction-grid');
+    const labelDistance = document.getElementById('label-distance');
+    const labelTime = document.getElementById('label-time');
 
     // --- Logic : Initialization ---
     function init() {
@@ -106,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 resultLabel.innerText = "평균 페이스 (Average Pace)";
                 resultUnit.innerText = "/km";
+                groupType.classList.add('hidden'); // Type hide
                 break;
             case 'time': // Calculate Time based on Pace & Distance
                 groupDistance.classList.remove('hidden');
@@ -114,13 +121,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 resultLabel.innerText = "예상 소요 시간 (Estimated Time)";
                 resultUnit.innerText = "";
+                labelDistance.innerText = "거리 (Distance)";
+                labelTime.innerText = "시간 (Time)";
+                groupType.classList.add('hidden');
                 break;
+            case 'predict': // Race Predictor
+                groupDistance.classList.remove('hidden');
+                groupTime.classList.remove('hidden');
+                groupPace.classList.add('hidden');
+                groupType.classList.remove('hidden');
+
+                labelDistance.innerText = "기준 거리 (Base Distance)";
+                labelTime.innerText = "최근 기록 (Recent Record)";
+
+                // Hide main result display in predict mode as we use a separate card
+                resultDisplay.style.display = 'none';
+                predictionCard.style.display = 'none'; // Hidden until calc
+                return; // Special case return
         }
+        // Default visibility for non-predict modes
+        resultDisplay.style.display = 'block';
+        predictionCard.style.display = 'none';
     }
 
     function resetResults() {
         resultValue.innerText = "--:--";
         splitsCard.classList.remove('visible');
+        predictionCard.style.display = 'none';
+        if (state.mode !== 'predict') {
+            resultDisplay.style.display = 'block';
+        }
     }
 
     function resetAll() {
@@ -190,12 +220,68 @@ document.addEventListener('DOMContentLoaded', () => {
             state.calculatedPace = paceSecondsPerKm;
             state.calculatedDist = dist;
             state.calculatedTime = resultTimeSec;
+
+        } else if (mode === 'predict') {
+            if (totalTimeSeconds === 0) {
+                alert("기준 기록(시간)을 입력해주세요.");
+                return;
+            }
+            const decay = parseFloat(document.getElementById('runner-type').value) || 1.06;
+            generatePredictions(dist, totalTimeSeconds, decay);
+            return; // Predict mode doesn't use splits or standard result display
         }
 
-        // Generate Splits
+        // Generate Splits (Only for Pace/Time modes)
         splitsCard.classList.add('visible');
         const activeGap = document.querySelector('.split-toggle.active').dataset.gap;
         generateSplits(parseInt(activeGap));
+    }
+
+    // --- Logic : Prediction ---
+    function generatePredictions(baseDist, baseTimeSec, decay) {
+        const targets = [
+            { label: '5km', dist: 5 },
+            { label: '10km', dist: 10 },
+            { label: '하프 마라톤 (Half)', dist: 21.0975 },
+            { label: '풀 마라톤 (Full)', dist: 42.195 }
+        ];
+
+        predictionGrid.innerHTML = '';
+
+        targets.forEach(target => {
+            // Riegel Formula: T2 = T1 * (D2 / D1)^Decay
+            const predictedTimeSec = baseTimeSec * Math.pow((target.dist / baseDist), decay);
+            const paceSec = predictedTimeSec / target.dist;
+
+            // Format Time
+            const timeStr = formatTime(predictedTimeSec);
+
+            // Format Pace
+            const pM = Math.floor(paceSec / 60);
+            const pS = Math.floor(paceSec % 60);
+            const paceStr = `${pM}'${pS.toString().padStart(2, '0')}"`;
+
+            const card = document.createElement('div');
+            card.className = 'predict-item';
+
+            // Highlight if it matches base distance (approx)
+            if (Math.abs(target.dist - baseDist) < 0.1) {
+                card.classList.add('highlight');
+            }
+
+            card.innerHTML = `
+                <div class="predict-title">${target.label}</div>
+                <div class="predict-time">${timeStr}</div>
+                <div class="predict-pace">@ ${paceStr}/km</div>
+            `;
+
+            predictionGrid.appendChild(card);
+        });
+
+        predictionCard.style.display = 'block';
+
+        // Scroll to results on mobile
+        predictionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     // --- Logic : Helpers ---

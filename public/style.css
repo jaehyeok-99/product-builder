@@ -350,14 +350,34 @@ input:focus {
 
 .card-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
     margin-bottom: 1.5rem;
 }
 
+@media (min-width: 480px) {
+    .card-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    /* Make description full width to force new line if needed, 
+       or let it sit next to title if short. 
+       But for the user's case, we want it stacked. */
+    .card-desc {
+        width: 100%;
+        margin-top: 0.5rem;
+        /* Add breathing room */
+    }
+}
+
 .card-header h2 {
-    font-size: 1.2rem;
-    font-weight: 600;
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.3;
 }
 
 .split-controls button {
@@ -715,4 +735,75 @@ details p {
 
 .status-msg.error {
     color: var(--accent);
+}
+
+/* Prediction Card Styles */
+.card-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+}
+
+.prediction-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.predict-item {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.predict-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+    border-color: var(--glass-border);
+}
+
+.predict-item:hover .predict-time {
+    color: var(--primary);
+}
+
+.predict-item.highlight {
+    border-color: var(--primary);
+    background: rgba(0, 242, 96, 0.05);
+}
+
+.predict-title {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.predict-time {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    font-family: 'Outfit', sans-serif;
+    margin-bottom: 0.2rem;
+    transition: color 0.2s;
+}
+
+.predict-pace {
+    font-size: 0.85rem;
+    color: var(--primary);
+    opacity: 0.9;
+}
+
+/* Animations */
+.predict-item {
+    animation: fadeIn 0.5s ease;
+}
+
+@media (max-width: 480px) {
+    .prediction-grid {
+        grid-template-columns: 1fr;
+    }
 }
