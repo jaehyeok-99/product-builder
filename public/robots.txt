@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://product-builder-887.pages.dev/sitemap.xml
+Sitemap: https://propace.site/sitemap.xml
